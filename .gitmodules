@@ -1,0 +1,6 @@
+[submodule "deps/tgbot-cpp"]
+	path = deps/tgbot-cpp
+	url = https://github.com/reo7sp/tgbot-cpp
+[submodule "deps/json"]
+	path = deps/json
+	url = https://github.com/nlohmann/json
