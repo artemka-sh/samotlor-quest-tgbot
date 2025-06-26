@@ -1,11 +1,11 @@
 Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
 Change Dir: /home/Artem/vscode/samotlor-quest-tgbot/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/ninja cmTC_5b0ea && [1/2] Building C object CMakeFiles/cmTC_5b0ea.dir/src.c.o
-[2/2] Linking C executable cmTC_5b0ea
-FAILED: cmTC_5b0ea 
-: && /usr/bin/gcc   CMakeFiles/cmTC_5b0ea.dir/src.c.o -o cmTC_5b0ea   && :
-/usr/bin/x86_64-rosa-linux-gnu-ld: CMakeFiles/cmTC_5b0ea.dir/src.c.o: в функции «main»:
+Run Build Command(s):/usr/bin/ninja cmTC_97f07 && [1/2] Building C object CMakeFiles/cmTC_97f07.dir/src.c.o
+[2/2] Linking C executable cmTC_97f07
+FAILED: cmTC_97f07 
+: && /usr/bin/gcc   CMakeFiles/cmTC_97f07.dir/src.c.o -o cmTC_97f07   && :
+/usr/bin/x86_64-rosa-linux-gnu-ld: CMakeFiles/cmTC_97f07.dir/src.c.o: в функции «main»:
 src.c:(.text+0x2d): неопределённая ссылка на «pthread_create»
 /usr/bin/x86_64-rosa-linux-gnu-ld: src.c:(.text+0x39): неопределённая ссылка на «pthread_detach»
 /usr/bin/x86_64-rosa-linux-gnu-ld: src.c:(.text+0x45): неопределённая ссылка на «pthread_cancel»
@@ -38,10 +38,10 @@ int main(void)
 Determining if the function pthread_create exists in the pthreads failed with the following output:
 Change Dir: /home/Artem/vscode/samotlor-quest-tgbot/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/ninja cmTC_da9ec && [1/2] Building C object CMakeFiles/cmTC_da9ec.dir/CheckFunctionExists.c.o
-[2/2] Linking C executable cmTC_da9ec
-FAILED: cmTC_da9ec 
-: && /usr/bin/gcc -DCHECK_FUNCTION_EXISTS=pthread_create  CMakeFiles/cmTC_da9ec.dir/CheckFunctionExists.c.o -o cmTC_da9ec  -lpthreads && :
+Run Build Command(s):/usr/bin/ninja cmTC_3e158 && [1/2] Building C object CMakeFiles/cmTC_3e158.dir/CheckFunctionExists.c.o
+[2/2] Linking C executable cmTC_3e158
+FAILED: cmTC_3e158 
+: && /usr/bin/gcc -DCHECK_FUNCTION_EXISTS=pthread_create  CMakeFiles/cmTC_3e158.dir/CheckFunctionExists.c.o -o cmTC_3e158  -lpthreads && :
 /usr/bin/x86_64-rosa-linux-gnu-ld: невозможно найти -lpthreads: Нет такого файла или каталога
 collect2: ошибка: выполнение ld завершилось с кодом возврата 1
 ninja: build stopped: subcommand failed.

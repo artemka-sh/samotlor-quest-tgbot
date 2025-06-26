@@ -1,3 +1,7 @@
 {
-    "telegram_token": "7370409297:AAFFPO3FSgL6Zr5bbzmsvNwd_UYJk2BUhNM"
+    "telegram_token": "7370409297:AAFFPO3FSgL6Zr5bbzmsvNwd_UYJk2BUhNM",
+    "db_addres": "127.0.0.1",
+    "db_port": "5432",
+    "db_user": "myuser",
+    "db_password": "6142"
 }
