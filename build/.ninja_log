@@ -1,8 +1,0 @@
-# ninja log v5
-10	1431	1750936561587281936	tgbot-cpp/CMakeFiles/TgBot.dir/src/TgException.cpp.o	88f2e51988c137d
-9	4494	1750936564650320836	tgbot-cpp/CMakeFiles/TgBot.dir/src/EventHandler.cpp.o	cb29aa9c5cb01b03
-4497	8932	1750936569093377262	tgbot-cpp/CMakeFiles/TgBot.dir/src/net/CurlHttpClient.cpp.o	cd2b4ed37f37c2b
-8	15770	1750936575925464029	tgbot-cpp/CMakeFiles/TgBot.dir/src/Bot.cpp.o	1ded7a02b056ba43
-1432	17508	1750936577655486000	tgbot-cpp/CMakeFiles/TgBot.dir/src/net/BoostHttpOnlySslClient.cpp.o	ee4d4fd4ffc2f7e6
-6	18327	1750936578481496490	tgbot-cpp/CMakeFiles/TgBot.dir/src/Api.cpp.o	5d7fbcd76c924431
-17	33936	1750936594054693033	tgbot-cpp/CMakeFiles/TgBot.dir/src/TgTypeParser.cpp.o	2aa7faf8a56338fa
