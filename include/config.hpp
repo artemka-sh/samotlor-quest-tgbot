@@ -1,9 +1,9 @@
 #pragma once
 
-#include <boost/json.hpp>
+#include "json.hpp"
 #include <fstream>
 
-using json = boost::json::value;
+using json = nlohmann::json;
 
 class Config
 {
@@ -18,21 +18,19 @@ public:
     Config()
     {
         readConfigFromFile("res/config.json");
-        telegram_token = data.as_object()["telegram_token"].as_string().c_str();
-        db_addres = data.as_object()["db_addres"].as_string().c_str();
-        db_port = data.as_object()["db_port"].as_string().c_str();
-        db_user = data.as_object()["db_user"].as_string().c_str();
-        db_password = data.as_object()["db_password"].as_string().c_str();
+        telegram_token = data["telegram_token"];
+        db_addres = data["telegram_token"];
+        db_port = data["db_port"];
+        db_user = data["telegram_token"];
+        db_password = data["telegram_token"];
     }
     
 private:
     void readConfigFromFile(std::string path)
     {
-        if (path.empty()) throw std::runtime_error("config path empty");
+        if(path.empty()) throw std::runtime_error("config path empty");
 
         std::ifstream configfile(path);
-        std::string content((std::istreambuf_iterator<char>(configfile)),
-                            std::istreambuf_iterator<char>());
-        data = boost::json::parse(content);
+        data = json::parse(configfile);
     }
 };

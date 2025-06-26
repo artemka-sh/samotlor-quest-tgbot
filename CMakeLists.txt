@@ -10,6 +10,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 set(Boost_USE_MULTITHREADED ON)
 
+# Включаем автоматическую обработку Qt (moc, uic, rcc)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
+# Находим Qt6 Core
+find_package(Qt6 COMPONENTS Core REQUIRED)
+
 add_subdirectory(${TGBOT_CPP_PATH} ${CMAKE_BINARY_DIR}/tgbot-cpp)
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -25,7 +33,7 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} TgBot)
+target_link_libraries(${PROJECT_NAME} TgBot Qt6::Core)
 
 #file(COPY ${CMAKE_SOURCE_DIR}/res/ DESTINATION ${CMAKE_BINARY_DIR})
 
