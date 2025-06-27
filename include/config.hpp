@@ -1,14 +1,14 @@
 #pragma once
 
-#include "json.hpp"
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <fstream>
-
-using json = nlohmann::json;
+#include <stdexcept>
 
 class Config
 {
 public:    
-    json data;
+    QJsonObject data;
     std::string telegram_token;
     std::string db_addres;
     std::string db_port;
@@ -18,11 +18,11 @@ public:
     Config()
     {
         readConfigFromFile("res/config.json");
-        telegram_token = data["telegram_token"];
-        db_addres = data["telegram_token"];
-        db_port = data["db_port"];
-        db_user = data["telegram_token"];
-        db_password = data["telegram_token"];
+        telegram_token = data["telegram_token"].toString().toStdString();
+        db_addres = data["db_address"].toString().toStdString();
+        db_port = data["db_port"].toString().toStdString();
+        db_user = data["db_user"].toString().toStdString();
+        db_password = data["db_password"].toString().toStdString();
     }
     
 private:
@@ -30,7 +30,18 @@ private:
     {
         if(path.empty()) throw std::runtime_error("config path empty");
 
-        std::ifstream configfile(path);
-        data = json::parse(configfile);
+        std::ifstream configFile(path);
+        if (!configFile.is_open()) {
+            throw std::runtime_error("failed to open config file");
+        }
+
+        std::string content((std::istreambuf_iterator<char>(configFile)),
+                             std::istreambuf_iterator<char>());
+        QJsonDocument doc = QJsonDocument::fromJson(QByteArray(content.c_str(), static_cast<int>(content.size())));
+        if (doc.isNull()) {
+            throw std::runtime_error("failed to parse config JSON");
+        }
+
+        data = doc.object();
     }
 };

@@ -15,6 +15,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+
+
 # Находим Qt6 Core
 find_package(Qt6 COMPONENTS Core REQUIRED)
 
