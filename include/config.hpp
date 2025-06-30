@@ -15,9 +15,9 @@ public:
     std::string db_user;
     std::string db_password;
 
-    Config()
+    Config(std::string path)
     {
-        readConfigFromFile("res/config.json");
+        readConfigFromFile(path);
         telegram_token = data["telegram_token"].toString().toStdString();
         db_addres = data["db_address"].toString().toStdString();
         db_port = data["db_port"].toString().toStdString();

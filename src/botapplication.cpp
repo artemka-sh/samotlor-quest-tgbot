@@ -2,8 +2,8 @@
 #include <iostream>
 
 BotApplication::BotApplication() {
-    config = new Config();
-    surveys = new Surveys();
+    config = new Config("res/config.json");
+    surveys = new Surveys("res/quests.json");
     bot = new TgBot::Bot(config->telegram_token);
 
     bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {

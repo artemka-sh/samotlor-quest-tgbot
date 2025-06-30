@@ -18,7 +18,7 @@ set(CMAKE_AUTORCC ON)
 
 
 # Находим Qt6 Core
-find_package(Qt6 COMPONENTS Core REQUIRED)
+find_package(Qt6 COMPONENTS Core Sql REQUIRED)
 
 add_subdirectory(${TGBOT_CPP_PATH} ${CMAKE_BINARY_DIR}/tgbot-cpp)
 find_package(Threads REQUIRED)
@@ -35,7 +35,7 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} TgBot Qt6::Core)
+target_link_libraries(${PROJECT_NAME} TgBot Qt6::Core Qt6::Sql)
 
 #file(COPY ${CMAKE_SOURCE_DIR}/res/ DESTINATION ${CMAKE_BINARY_DIR})
 

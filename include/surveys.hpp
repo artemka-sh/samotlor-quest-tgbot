@@ -22,8 +22,8 @@ public:
     QJsonObject data; // Хранит весь JSON-объект опросов
     std::vector<Survey> surveys; // Вектор опросов для удобного доступа
 
-    Surveys() {
-        readSurveysFromFile("res/surveys.json");
+    Surveys(const std::string path) {
+        readSurveysFromFile(path);
         parseSurveys();
     }
 
@@ -43,7 +43,8 @@ public:
     }
 
 private:
-    void readSurveysFromFile(const std::string& path) {
+    void readSurveysFromFile(const std::string& pathx) {
+        std::string path = "res/surveys.json";
         if (path.empty()) {
             throw std::runtime_error("Surveys file path is empty");
         }
