@@ -95,3 +95,106 @@ private:
         }
     }
 };
+
+
+
+
+
+//Альтернатинвый вариант
+
+// #pragma once
+
+// #include <QJsonDocument>
+// #include <QJsonObject>
+// #include <QJsonArray>
+// #include <fstream>
+// #include <stdexcept>
+// #include <vector>
+// #include <string>
+
+// struct Survey {
+//     int id;
+//     std::string question;
+//     std::vector<std::string> answers;
+//     bool allowCustomAnswer = false;
+//     int calledQuestId = 0;
+// };
+
+// class Surveys {
+// public:
+//     std::vector<Survey> surveys;
+
+//     explicit Surveys(const std::string& path) {
+//         const QJsonObject root = loadJsonFromFile(path);
+//         parseSurveys(root);
+//     }
+
+//     const Survey* findById(int id) const {
+//         for (const auto& s : surveys) {
+//             if (s.id == id) return &s;
+//         }
+//         return nullptr;
+//     }
+
+//     bool isEmpty() const {
+//         return surveys.empty();
+//     }
+
+// private:
+//     QJsonObject loadJsonFromFile(const std::string& path) {
+//         if (path.empty()) {
+//             throw std::runtime_error("Surveys file path is empty");
+//         }
+
+//         std::ifstream file(path);
+//         if (!file.is_open()) {
+//             throw std::runtime_error("Failed to open surveys file: " + path);
+//         }
+
+//         std::string content((std::istreambuf_iterator<char>(file)),
+//                              std::istreambuf_iterator<char>());
+
+//         QJsonParseError error;
+//         QJsonDocument doc = QJsonDocument::fromJson(QByteArray::fromStdString(content), &error);
+//         if (doc.isNull() || !doc.isObject()) {
+//             throw std::runtime_error("Failed to parse JSON: " + error.errorString().toStdString());
+//         }
+
+//         return doc.object();
+//     }
+
+//     void parseSurveys(const QJsonObject& root) {
+//         if (!root.contains("surveys") || !root["surveys"].isArray()) {
+//             return;
+//         }
+
+//         QJsonArray surveyArray = root["surveys"].toArray();
+//         surveys.clear();
+
+//         for (const auto& item : surveyArray) {
+//             if (!item.isObject()) continue;
+//             const QJsonObject obj = item.toObject();
+
+//             Survey s;
+
+//             if (!obj.contains("id") || !obj["id"].isDouble()) continue;
+//             if (!obj.contains("question") || !obj["question"].isString()) continue;
+
+//             s.id = obj["id"].toInt();
+//             s.question = obj["question"].toString().toStdString();
+
+//             if (obj.contains("answers") && obj["answers"].isArray()) {
+//                 for (const auto& ans : obj["answers"].toArray()) {
+//                     if (ans.isString()) {
+//                         s.answers.push_back(ans.toString().toStdString());
+//                     }
+//                 }
+//             }
+
+//             s.allowCustomAnswer = obj.value("allowCustomAnswer").toBool(false);
+//             s.calledQuestId = obj.value("calledQuestId").toInt(0);
+
+//             surveys.push_back(std::move(s));
+//         }
+//     }
+// };

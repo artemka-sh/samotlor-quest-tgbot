@@ -5,7 +5,7 @@ DatabaseManager::DatabaseManager(const Config& config) {
     db = QSqlDatabase::addDatabase("QPSQL");
     db.setHostName(QString::fromStdString(config.db_addres));
     db.setPort(QString::fromStdString(config.db_port).toInt());
-    db.setDatabaseName("your_db_name"); // Заменить на config.db_name, если есть
+    db.setDatabaseName(QString::fromStdString(config.db_name)); 
     db.setUserName(QString::fromStdString(config.db_user));
     db.setPassword(QString::fromStdString(config.db_password));
     if (!db.open()) {

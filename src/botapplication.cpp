@@ -3,9 +3,10 @@
 
 BotApplication::BotApplication() {
     config = new Config("res/config.json");
-    surveys = new Surveys("res/quests.json");
+    surveys = new Surveys("res/surveys.json");
     bot = new TgBot::Bot(config->telegram_token);
 
+    
     bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
         bot->getApi().sendMessage(message->chat->id, "Привет! Пройди анонимный опрос и т.д. и т.п.");
     });
