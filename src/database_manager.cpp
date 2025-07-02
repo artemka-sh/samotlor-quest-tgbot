@@ -54,9 +54,12 @@ bool DatabaseManager::addUser(qint64 telegramId, const QString& username, const 
     query.prepare("INSERT INTO users (telegram_id, username) VALUES (:id, :username) ON CONFLICT (telegram_id) DO NOTHING");
     query.bindValue(":id", telegramId);
     query.bindValue(":username", username);
+    
     if (!query.exec()) {
         qDebug() << "Failed to insert user:" << query.lastError().text();
         return false;
     }
-    return true;
+    bool inserted = query.numRowsAffected() > 0;
+    qDebug() << (inserted ? "User inserted successfully" : "User already exists, not inserted");
+    return inserted;
 }

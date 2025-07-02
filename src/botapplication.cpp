@@ -3,10 +3,13 @@
 
 BotApplication::BotApplication() {
     config = new Config("res/config.json");
-    surveys = new Surveys("res/surveys.json");
+    questions = new Questions("res/questions.json");
     bot = new TgBot::Bot(config->telegram_token);
-
+    databaseManager = new DatabaseManager(*config);
     
+    databaseManager->initTables();
+    databaseManager->addUser(1234567890, "test", "test");
+
     bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
         bot->getApi().sendMessage(message->chat->id, "Привет! Пройди анонимный опрос и т.д. и т.п.");
     });
@@ -22,7 +25,7 @@ BotApplication::BotApplication() {
 
 BotApplication::~BotApplication() {
     delete bot;
-    delete surveys;
+    delete questions;
     delete config;
 }
 

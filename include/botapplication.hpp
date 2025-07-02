@@ -2,7 +2,8 @@
 
 #include <tgbot/tgbot.h>
 #include "config.hpp"
-#include "surveys.hpp"
+#include "questions.hpp"
+#include "database_manager.hpp"
 
 class BotApplication {
 public:
@@ -14,7 +15,8 @@ private:
     
     void runLongPoll();
     Config* config;
-    Surveys* surveys;
+    Questions* questions;
+    DatabaseManager* databaseManager;
     TgBot::Bot* bot;
     TgBot::TgLongPoll* longPoll;
 };

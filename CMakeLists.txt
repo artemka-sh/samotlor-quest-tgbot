@@ -9,6 +9,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 set(Boost_USE_MULTITHREADED ON)
+add_definitions(-DBOOST_BIND_GLOBAL_PLACEHOLDERS)
+
 
 # Включаем автоматическую обработку Qt (moc, uic, rcc)
 set(CMAKE_AUTOMOC ON)

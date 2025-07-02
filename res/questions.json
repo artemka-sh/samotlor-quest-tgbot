@@ -1,0 +1,96 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "type": "survey",
+      "question": "Какой ваш любимый язык программирования?",
+      "answers": [
+        "Python",
+        "JavaScript",
+        "Java",
+        "C++",
+        "Go"
+      ],
+      "allowCustomAnswer": true,
+      "correctAnswer": null,
+      "explanation": null
+    },
+    {
+      "id": 2,
+      "type": "survey",
+      "question": "Какие операционные системы вы используете? (можно выбрать несколько)",
+      "answers": [
+        "Windows",
+        "macOS",
+        "Linux Ubuntu",
+        "Linux CentOS",
+        "Android",
+        "iOS"
+      ],
+      "allowCustomAnswer": true,
+      "correctAnswer": null,
+      "explanation": null
+    },
+    {
+      "id": 3,
+      "type": "survey",
+      "question": "Сколько часов в день вы программируете?",
+      "answers": [
+        "Менее 1 часа",
+        "1-3 часа",
+        "4-6 часов",
+        "7-8 часов",
+        "Более 8 часов"
+      ],
+      "allowCustomAnswer": false,
+      "correctAnswer": null,
+      "explanation": null
+    },
+    {
+      "id": 4,
+      "type": "survey",
+      "question": "Оставьте комментарий о вашем опыте программирования",
+      "answers": [],
+      "allowCustomAnswer": true,
+      "correctAnswer": null,
+      "explanation": null
+    },
+    {
+      "id": 5,
+      "type": "quest",
+      "question": "Какая столица России?",
+      "answers": [
+        "Санкт-Петербург",
+        "Москва",
+        "Новосибирск",
+        "Екатеринбург"
+      ],
+      "allowCustomAnswer": false,
+      "correctAnswer": "Москва",
+      "explanation": "Москва является столицей Российской Федерации с 1918 года."
+    },
+    {
+      "id": 6,
+      "type": "quest",
+      "question": "Сколько будет 2 + 2?",
+      "answers": [
+        "3",
+        "4",
+        "5",
+        "22"
+      ],
+      "allowCustomAnswer": false,
+      "correctAnswer": "4",
+      "explanation": "2 + 2 = 4."
+    },
+    {
+      "id": 7,
+      "type": "quest",
+      "question": "Выполните задание: подтянитесь 10 раз. После выполнения введи код когда получишь код",
+      "answers": [],
+      "allowCustomAnswer": false,
+      "correctAnswer": "PULLUP2025",
+      "explanation": "Мололдец, код правильный"
+    }
+  ]
+}
