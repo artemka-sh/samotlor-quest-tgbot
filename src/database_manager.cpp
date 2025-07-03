@@ -34,32 +34,107 @@ void DatabaseManager::initTables() {
         )
     )")) {
         qDebug() << "Failed to create users table:" << query.lastError().text();
+    } else {
+        qDebug() << "Table 'users' checked/created.";
     }
-    // Таблица user_survey_responses
+    // Таблица user_answers
     if (!query.exec(R"(
-        CREATE TABLE IF NOT EXISTS user_survey_responses (
+        CREATE TABLE IF NOT EXISTS user_answers (
             id SERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-            survey_id INTEGER NOT NULL,
+            question_id INTEGER NOT NULL,
+            type TEXT NOT NULL,
             answer TEXT,
             answered_at TIMESTAMP DEFAULT NOW()
         )
     )")) {
-        qDebug() << "Failed to create user_survey_responses table:" << query.lastError().text();
+        qDebug() << "Failed to create user_answers table:" << query.lastError().text();
+    } else {
+        qDebug() << "Table 'user_answers' checked/created.";
     }
 }
 
-bool DatabaseManager::addUser(qint64 telegramId, const QString& username, const QString& message) {
+bool DatabaseManager::addUser(qint64 telegramId, const QString& username, const QString& firstName, const QString& lastName) {
     QSqlQuery query;
-    query.prepare("INSERT INTO users (telegram_id, username) VALUES (:id, :username) ON CONFLICT (telegram_id) DO NOTHING");
+    query.prepare("INSERT INTO users (telegram_id, username, first_name, last_name) VALUES (:id, :username, :first_name, :last_name) ON CONFLICT (telegram_id) DO NOTHING");
     query.bindValue(":id", telegramId);
     query.bindValue(":username", username);
-    
-    if (!query.exec()) {
-        qDebug() << "Failed to insert user:" << query.lastError().text();
+    query.bindValue(":first_name", firstName);
+    query.bindValue(":last_name", lastName);
+    bool ok = query.exec();
+    if (!ok) {
+        qDebug() << "[addUser] Failed to insert user:" << query.lastError().text();
         return false;
     }
     bool inserted = query.numRowsAffected() > 0;
-    qDebug() << (inserted ? "User inserted successfully" : "User already exists, not inserted");
+    qDebug() << (inserted ? "[addUser] User inserted successfully" : "[addUser] User already exists, not inserted") << "telegram_id:" << telegramId;
     return inserted;
+}
+
+bool DatabaseManager::hasUser(qint64 telegramId) {
+    QSqlQuery query;
+    query.prepare("SELECT id FROM users WHERE telegram_id = :id");
+    query.bindValue(":id", telegramId);
+    bool ok = query.exec();
+    if (!ok) {
+        qDebug() << "[hasUser] Query failed:" << query.lastError().text();
+        return false;
+    }
+    bool exists = query.next();
+    qDebug() << "[hasUser] User exists:" << exists << "for telegram_id:" << telegramId;
+    return exists;
+}
+
+void DatabaseManager::saveAnswer(qint64 telegramId, int questionId, const std::string& answer, const std::string& type) {
+    QSqlQuery userQuery;
+    userQuery.prepare("SELECT id FROM users WHERE telegram_id = :id");
+    userQuery.bindValue(":id", telegramId);
+    if (!userQuery.exec() || !userQuery.next()) {
+        qDebug() << "[saveAnswer] User not found for telegram_id:" << telegramId;
+        return;
+    }
+    int userId = userQuery.value(0).toInt();
+
+    QSqlQuery query;
+    query.prepare(R"(
+        INSERT INTO user_answers (user_id, question_id, type, answer)
+        VALUES (:user_id, :question_id, :type, :answer)
+    )");
+    query.bindValue(":user_id", userId);
+    query.bindValue(":question_id", questionId);
+    query.bindValue(":type", QString::fromStdString(type));
+    query.bindValue(":answer", QString::fromStdString(answer));
+    if (!query.exec()) {
+        qDebug() << "[saveAnswer] Failed to insert answer:" << query.lastError().text();
+    } else {
+        qDebug() << "[saveAnswer] Answer saved for user_id:" << userId << "question_id:" << questionId << "type:" << QString::fromStdString(type);
+    }
+}
+
+int DatabaseManager::getLastAnsweredQuestionId(qint64 telegramId) {
+    QSqlQuery userQuery;
+    userQuery.prepare("SELECT id FROM users WHERE telegram_id = :id");
+    userQuery.bindValue(":id", telegramId);
+    if (!userQuery.exec() || !userQuery.next()) {
+        qDebug() << "[getLastAnsweredQuestionId] User not found for telegram_id:" << telegramId;
+        return -1;
+    }
+    int userId = userQuery.value(0).toInt();
+
+    QSqlQuery query;
+    query.prepare(R"(
+        SELECT question_id
+        FROM user_answers
+        WHERE user_id = :user_id
+        ORDER BY answered_at DESC, id DESC
+        LIMIT 1
+    )");
+    query.bindValue(":user_id", userId);
+    if (!query.exec() || !query.next()) {
+        qDebug() << "[getLastAnsweredQuestionId] No answers found for user_id:" << userId;
+        return -1;
+    }
+    int qid = query.value(0).toInt();
+    qDebug() << "[getLastAnsweredQuestionId] Last answered question_id:" << qid << "for user_id:" << userId;
+    return qid;
 }

@@ -11,8 +11,11 @@ public:
     DatabaseManager(const Config& config);
     ~DatabaseManager();
 
-    bool addUser(qint64 telegramId, const QString& username, const QString& message);
+    bool addUser(qint64 telegramId, const QString& username, const QString& firstName, const QString& lastName);
     void initTables();
+    bool hasUser(qint64 telegramId);
+    int getLastAnsweredQuestionId(qint64 telegramId);
+    void saveAnswer(qint64 telegramId, int questionId, const std::string& answer, const std::string& type);
 
 private:
     QSqlDatabase db;
