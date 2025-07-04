@@ -28,7 +28,7 @@ private:
     int getFirstQuestionId() const;
     const Question* getNextQuestion(int currentQuestionId) const;
     int getLastAnsweredQuestionId(qint64 userId) const;
-    bool isValidAnswer(const std::string& userText, const Question& question);
+    bool isValidAnswer(const std::string& userText, const Question question);
 
     TelegramMessenger* messenger;
     Config* config;

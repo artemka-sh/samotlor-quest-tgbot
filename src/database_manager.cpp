@@ -159,9 +159,30 @@ int DatabaseManager::getLastAnsweredQuestionId(qint64 telegramId) {
     if (!query.exec() || !query.next()) {
         qDebug() << "[getLastAnsweredQuestionId] No answers found for user_id:" << userId;
         qDebug() << "[getLastAnsweredQuestionId] Return default id";
-        return 1;
+        return -1;
     }
     int qid = query.value(0).toInt();
     qDebug() << "[getLastAnsweredQuestionId] Last answered question_id:" << qid << "for user_id:" << userId;
     return qid;
+}
+
+bool DatabaseManager::isQuestionAnswered(qint64 telegramId, int questionId) {
+    int userId = getUserId(telegramId);
+    if (userId == -1) {
+        qDebug() << "[isQuestionAnswered] User not found for telegram_id:" << telegramId;
+        return false;
+    }
+    QSqlQuery query;
+    query.prepare(R"(
+        SELECT answer FROM user_answers
+        WHERE user_id = :user_id AND question_id = :question_id
+        LIMIT 1
+    )");
+    query.bindValue(":user_id", userId);
+    query.bindValue(":question_id", questionId);
+    if (!query.exec() || !query.next()) {
+        return false;
+    }
+    QString answer = query.value(0).toString();
+    return !answer.isEmpty();
 }

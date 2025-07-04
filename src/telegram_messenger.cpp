@@ -6,7 +6,7 @@ void TelegramMessenger::sendMessage(qint64 userId, const std::string& text) {
     bot->getApi().sendMessage(userId, text);
 }
 
-void TelegramMessenger::sendQuestionWithKeyboard(qint64 userId, const Question& question) {
+void TelegramMessenger::sendQuestionWithKeyboard(qint64 userId, const Question question) {
     std::string text = question.question;
     TgBot::ReplyKeyboardMarkup::Ptr keyboard(new TgBot::ReplyKeyboardMarkup);
     keyboard->resizeKeyboard = true;

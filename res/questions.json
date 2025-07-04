@@ -55,20 +55,17 @@
       "correctAnswer": null,
       "explanation": null
     },
+
     {
-      "id": 5,
-      "type": "quest",
-      "question": "Какая столица России?",
-      "answers": [
-        "Санкт-Петербург",
-        "Москва",
-        "Новосибирск",
-        "Екатеринбург"
-      ],
-      "allowCustomAnswer": false,
-      "correctAnswer": "Москва",
-      "explanation": "Москва является столицей Российской Федерации с 1918 года."
+        "id": 5,
+        "type": "quest",
+        "question": "Выполните задание: подтянитесь 10 раз. После выполнения введи код когда получишь код",
+        "answers": [],
+        "allowCustomAnswer": false,
+        "correctAnswer": "PULLUP2025",
+        "explanation": "Мололдец, код правильный"
     },
+
     {
       "id": 6,
       "type": "quest",
@@ -83,14 +80,20 @@
       "correctAnswer": "4",
       "explanation": "2 + 2 = 4."
     },
+   
     {
-      "id": 7,
-      "type": "quest",
-      "question": "Выполните задание: подтянитесь 10 раз. После выполнения введи код когда получишь код",
-      "answers": [],
-      "allowCustomAnswer": false,
-      "correctAnswer": "PULLUP2025",
-      "explanation": "Мололдец, код правильный"
-    }
+        "id": 7,
+        "type": "quest",
+        "question": "Какая столица России?",
+        "answers": [
+          "Санкт-Петербург",
+          "Москва",
+          "Новосибирск",
+          "Екатеринбург"
+        ],
+        "allowCustomAnswer": false,
+        "correctAnswer": "Москва",
+        "explanation": "Москва является столицей Российской Федерации с 1918 года."
+      }
   ]
 }

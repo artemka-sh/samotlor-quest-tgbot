@@ -18,6 +18,7 @@ public:
     void saveAnswer(qint64 telegramId, int questionId, const std::string& answer, const std::string& type);
     void updateAnswer(qint64 telegramId, int questionId, const std::string& answer, const std::string& type);
     int getUserId(qint64 telegramId);
+    bool isQuestionAnswered(qint64 telegramId, int questionId);
 
 private:
     QSqlDatabase db;

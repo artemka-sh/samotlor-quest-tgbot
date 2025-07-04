@@ -12,7 +12,6 @@ BotApplication::BotApplication() {
     messenger = new TelegramMessenger(bot);
     
     databaseManager->initTables();
-    databaseManager->addUser(1234567890, "test", "test", "test");
 
     bot->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
         this->onAnyMessage(message);
@@ -71,13 +70,15 @@ int BotApplication::getLastAnsweredQuestionId(qint64 userId) const {
     return databaseManager->getLastAnsweredQuestionId(userId);
 }
 
-bool BotApplication::isValidAnswer(const std::string& userText, const Question& question) {
+bool BotApplication::isValidAnswer(const std::string& userText, const Question question) {
     if (question.allowCustomAnswer) return true;
-    for (const auto& ans : question.answers) {
-        if (userText == ans) return true;
+    if (question.correctAnswer.empty()) {
+        for (const auto& ans : question.answers) {
+            if (userText == ans) return true;
+        }
+    } else {
+        return userText == question.correctAnswer;
     }
-    if (!question.correctAnswer.empty() && userText == question.correctAnswer) return true;
-    return false;
 }
 
 
@@ -87,21 +88,19 @@ void BotApplication::onAnyMessage(TgBot::Message::Ptr message) {
     // 1. Получение пользователя (создаём, если нет)
     User user = getUser(message);
 
-
     // 2. Получаем id последнего отвеченного вопроса
     int lastAnsweredId = getLastAnsweredQuestionId(user.id);
-    
-    if (lastAnsweredId == getLastQuestionId()) {
+    if (lastAnsweredId == getLastQuestionId() && databaseManager->isQuestionAnswered(user.id, lastAnsweredId)) {
         messenger->sendMessage(user.id, "Вы завершили квест! Спасибо за участие.");
         return;
     }
-    const Question* lastQuestion = questions->findById(lastAnsweredId);
     
+ 
     //3. Проверка условия на команду /start
-    if (message->text == "/start") {
+    if (message->text == "/start" || lastAnsweredId < 0) {
         // 4. Сохраняем первый вопрос без текста ответа
-        if (lastQuestion) {
-            messenger->sendQuestionWithKeyboard(user.id, *lastQuestion);
+        if (lastAnsweredId >= 0) {
+            messenger->sendQuestionWithKeyboard(user.id, *questions->findById(lastAnsweredId));
         } else {
             messenger->sendMessage(user.id, "Добро пожаловать в квиз! Сейчас начнётся опрос. Пожалуйста, отвечайте на вопросы по порядку.");
             const Question* firstQuestion = questions->findById(getFirstQuestionId());
@@ -110,6 +109,7 @@ void BotApplication::onAnyMessage(TgBot::Message::Ptr message) {
         }
         return;
     }
+    const Question* lastQuestion = questions->findById(lastAnsweredId);
 
 
     // 5. Обновляем предыдущий вопрос (сохраняем ответ)
@@ -130,7 +130,7 @@ void BotApplication::onAnyMessage(TgBot::Message::Ptr message) {
         nextQuestion = getNextQuestion(lastAnsweredId);
     }
     if (!nextQuestion) {
-        messenger->sendMessage(user.id, "Вопрос не найден или опрос завершён.");
+        messenger->sendMessage(user.id, "Вы завершили квест! Спасибо за участие.");
         return;
     }
     // 7. Сохраняем следующий вопрос без текста ответа
