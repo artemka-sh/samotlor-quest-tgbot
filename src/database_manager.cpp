@@ -118,6 +118,29 @@ void DatabaseManager::saveAnswer(qint64 telegramId, int questionId, const std::s
     }
 }
 
+void DatabaseManager::updateAnswer(qint64 telegramId, int questionId, const std::string& answer, const std::string& type) {
+    int userId = getUserId(telegramId);
+    if (userId == -1) {
+        qDebug() << "[updateAnswer] User not found for telegram_id:" << telegramId;
+        return;
+    }
+    QSqlQuery query;
+    query.prepare(R"(
+        UPDATE user_answers
+        SET answer = :answer, type = :type, answered_at = NOW()
+        WHERE user_id = :user_id AND question_id = :question_id
+    )");
+    query.bindValue(":user_id", userId);
+    query.bindValue(":question_id", questionId);
+    query.bindValue(":type", QString::fromStdString(type));
+    query.bindValue(":answer", QString::fromStdString(answer));
+    if (!query.exec()) {
+        qDebug() << "[updateAnswer] Failed to update answer:" << query.lastError().text();
+    } else {
+        qDebug() << "[updateAnswer] Answer updated for user_id:" << userId << "question_id:" << questionId;
+    }
+}
+
 int DatabaseManager::getLastAnsweredQuestionId(qint64 telegramId) {
     int userId = getUserId(telegramId);
     if (userId == -1) {

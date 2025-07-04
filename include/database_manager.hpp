@@ -16,6 +16,7 @@ public:
     bool hasUser(qint64 telegramId);
     int getLastAnsweredQuestionId(qint64 telegramId);
     void saveAnswer(qint64 telegramId, int questionId, const std::string& answer, const std::string& type);
+    void updateAnswer(qint64 telegramId, int questionId, const std::string& answer, const std::string& type);
     int getUserId(qint64 telegramId);
 
 private:
