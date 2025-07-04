@@ -17,6 +17,9 @@ void TelegramMessenger::sendQuestionWithKeyboard(qint64 userId, const Question q
             std::vector<TgBot::KeyboardButton::Ptr> row;
             TgBot::KeyboardButton::Ptr btn(new TgBot::KeyboardButton);
             btn->text = ans;
+            btn->requestContact = false;
+            btn->requestLocation = false;
+            btn->requestPoll = TgBot::KeyboardButtonPollType::Ptr();
             row.push_back(btn);
             keyboard->keyboard.push_back(row);
         }
@@ -25,3 +28,4 @@ void TelegramMessenger::sendQuestionWithKeyboard(qint64 userId, const Question q
     }
     bot->getApi().sendMessage(userId, text, nullptr, nullptr, keyboard);
 } 
+

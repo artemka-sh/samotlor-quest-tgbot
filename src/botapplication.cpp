@@ -79,6 +79,7 @@ bool BotApplication::isValidAnswer(const std::string& userText, const Question q
     } else {
         return userText == question.correctAnswer;
     }
+    return false;
 }
 
 
