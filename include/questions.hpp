@@ -34,6 +34,18 @@ public:
         return nullptr;
     }
 
+    const Question* getNext(int id) const {
+        bool found = false;
+        for (const auto& q : questions) {
+            if (q.id == id) {
+                found = true;
+                continue;
+            }
+            if (found) return &q;
+        }
+        return nullptr;
+    }
+
     bool isEmpty() const {
         return questions.empty();
     }

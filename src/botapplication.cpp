@@ -51,89 +51,55 @@ void BotApplication::onAnyMessage(TgBot::Message::Ptr message) {
     qint64 userId = message->from->id;
     std::string userName = message->from->username;
     std::string userText = message->text;
-    qDebug() << "[onAnyMessage] userId:" << userId << "userName:" << QString::fromStdString(userName) << "userText:" << QString::fromStdString(userText);
-
     QString firstName = message->from->firstName.empty() ? "" : QString::fromStdString(message->from->firstName);
     QString lastName = message->from->lastName.empty() ? "" : QString::fromStdString(message->from->lastName);
-    if (!databaseManager->hasUser(userId)) {
-        qDebug() << "[onAnyMessage] User not found, adding...";
-        databaseManager->addUser(userId, QString::fromStdString(userName), firstName, lastName);
-    }
 
-    // 2. Получить id последнего отвеченного вопроса
-    int lastAnsweredId = databaseManager->getLastAnsweredQuestionId(userId);
-    if (lastAnsweredId == 0) { // если не найдено, пусть будет -1
-        lastAnsweredId = -1;
-    }
+    qDebug() << "[onAnyMessage] userId:" << userId << "userName:" << QString::fromStdString(userName)
+             << "userText:" << QString::fromStdString(userText);
+
+    // 1. Проверка пользователя
+    ensureUserInDatabase(userId, userName, firstName, lastName);
+
+    // 2. Получение id последнего отвеченного вопроса
+    int lastAnsweredId = getLastAnsweredQuestionId(userId);
     qDebug() << "[onAnyMessage] lastAnsweredId:" << lastAnsweredId;
 
-    // 3. Определить следующий вопрос для пользователя
-    const Question* nextQuestion = nullptr;
-    if (lastAnsweredId == -1) {
-        // Первый вопрос
-        if (!questions->questions.empty()) {
-            nextQuestion = &questions->questions[0];
-        }
-    } else {
-        // Найти текущий вопрос по id
-        auto it = std::find_if(
-            questions->questions.begin(),
-            questions->questions.end(),
-            [lastAnsweredId](const Question& q) { return q.id == lastAnsweredId; }
-        );
-        if (it != questions->questions.end() && ++it != questions->questions.end()) {
-            nextQuestion = &(*it);
-        }
-    }
-    qDebug() << "[onAnyMessage] nextQuestion id:" << (nextQuestion ? nextQuestion->id : -1);
-
-    // Если вопросов больше нет
-    if (!nextQuestion) {
-        messenger->sendMessage(userId, "Вы прошли все вопросы! Спасибо за участие.");
+    // 3. Если пользователь не отвечал ни на один вопрос — просто задать первый вопрос
+    if (handleFirstQuestionIfNeeded(userId, lastAnsweredId)) {
         return;
     }
 
-    // 4. Если это первый вопрос, просто отправить его
-    if (lastAnsweredId == -1) {
-        messenger->sendQuestionWithKeyboard(userId, *nextQuestion);
-        return;
-    }
-
-    // 5. Проверить, валиден ли ответ пользователя на предыдущий вопрос
-    const Question* prevQuestion = questions->findById(lastAnsweredId);
+    // 4. Получение предыдущего вопроса
+    const Question* prevQuestion = getPreviousQuestion(lastAnsweredId);
     if (!prevQuestion) {
-        messenger->sendMessage(userId, "Ошибка: предыдущий вопрос не найден.");
+        messenger->sendMessage(userId, "Ошибка: вопрос по айди не найден.");
         return;
     }
     qDebug() << "[onAnyMessage] prevQuestion id:" << prevQuestion->id;
 
-    if (!isValidAnswer(userText, *prevQuestion)) {
-        messenger->sendMessage(userId, "Пожалуйста, выберите один из предложенных вариантов ответа.");
-        messenger->sendQuestionWithKeyboard(userId, *prevQuestion);
+    // 5. Проверка валидности ответа
+    if (handleInvalidAnswer(userId, userText, prevQuestion)) {
+        return;
+    }
+    qDebug() << "[onAnyMessage] Ответ валиден, сохраняем...";
+
+    // 6. Сохранение ответа
+    saveUserAnswer(userId, prevQuestion, userText);
+
+    // 7. Получение следующего вопроса
+    const Question* nextQuestion = getNextQuestion(prevQuestion->id);
+    qDebug() << "[onAnyMessage] nextQuestion id:" << (nextQuestion ? nextQuestion->id : -1);
+
+    // 8. Если вопросов больше нет
+    if (handleNoMoreQuestions(userId, nextQuestion)) {
         return;
     }
 
-    // 6. Сохранить ответ пользователя
-    qDebug() << "[saveAnswer] called for telegramId:" << userId << "questionId:" << lastAnsweredId << "type:" << QString::fromStdString(prevQuestion->type);
-    databaseManager->saveAnswer(userId, lastAnsweredId, userText, prevQuestion->type);
+    // 9. Фидбек по предыдущему вопросу
+    sendFeedbackForPrevious(prevQuestion, userText, userId);
 
-    // 7. Если предыдущий вопрос был квестовым, проверить правильность ответа
-    if (prevQuestion->type == "quest" && !prevQuestion->correctAnswer.empty()) {
-        if (isCorrectAnswer(userText, *prevQuestion)) {
-            messenger->sendMessage(userId, "Верно! " + prevQuestion->explanation);
-        } else {
-            messenger->sendMessage(userId, "Неверно. " + prevQuestion->explanation);
-        }
-    } else if (!prevQuestion->explanation.empty()) {
-        messenger->sendMessage(userId, prevQuestion->explanation);
-    }
-
-    // 8. Отправить следующий вопрос
+    // 10. Отправка следующего вопроса
     messenger->sendQuestionWithKeyboard(userId, *nextQuestion);
-}
-
-void BotApplication::sendQuestion(qint64 userId, const Question& question) {
-    messenger->sendQuestionWithKeyboard(userId, question);
 }
 
 bool BotApplication::isValidAnswer(const std::string& userText, const Question& question) {
@@ -145,6 +111,68 @@ bool BotApplication::isValidAnswer(const std::string& userText, const Question& 
     return false;
 }
 
-bool BotApplication::isCorrectAnswer(const std::string& userText, const Question& question) {
-    return userText == question.correctAnswer;
+void BotApplication::ensureUserInDatabase(qint64 userId, const std::string& userName, const QString& firstName, const QString& lastName) {
+    if (!databaseManager->hasUser(userId)) {
+        qDebug() << "[ensureUserInDatabase] User not found, adding...";
+        databaseManager->addUser(userId, QString::fromStdString(userName), firstName, lastName);
+    }
+}
+
+int BotApplication::getLastAnsweredQuestionId(qint64 userId) {
+    return databaseManager->getLastAnsweredQuestionId(userId);
+}
+
+bool BotApplication::handleFirstQuestionIfNeeded(qint64 userId, int lastAnsweredId) {
+    if (lastAnsweredId == 0 || lastAnsweredId == -1) {
+        const Question* firstQuestion = questions->findById(1);
+        if (firstQuestion) {
+            messenger->sendQuestionWithKeyboard(userId, *firstQuestion);
+        } else {
+            messenger->sendMessage(userId, "Ошибка: первый вопрос не найден.");
+        }
+        return true;
+    }
+    return false;
+}
+
+const Question* BotApplication::getPreviousQuestion(int lastAnsweredId) {
+    return questions->findById(lastAnsweredId);
+}
+
+bool BotApplication::handleInvalidAnswer(qint64 userId, const std::string& userText, const Question* prevQuestion) {
+    if (!isValidAnswer(userText, *prevQuestion)) {
+        qDebug() << "[handleInvalidAnswer] Ответ невалиден!";
+        messenger->sendMessage(userId, "Пожалуйста, выберите один из предложенных вариантов ответа.");
+        messenger->sendQuestionWithKeyboard(userId, *prevQuestion);
+        return true;
+    }
+    return false;
+}
+
+void BotApplication::saveUserAnswer(qint64 userId, const Question* prevQuestion, const std::string& userText) {
+    databaseManager->saveAnswer(userId, prevQuestion->id, userText, prevQuestion->type);
+}
+
+const Question* BotApplication::getNextQuestion(int lastAnsweredId) {
+    return questions->getNext(lastAnsweredId);
+}
+
+bool BotApplication::handleNoMoreQuestions(qint64 userId, const Question* nextQuestion) {
+    if (!nextQuestion) {
+        messenger->sendMessage(userId, "Вы прошли все вопросы! Спасибо за участие.");
+        return true;
+    }
+    return false;
+}
+
+void BotApplication::sendFeedbackForPrevious(const Question* prevQuestion, const std::string& userText, qint64 userId) {
+    if (prevQuestion->type == "quest" && !prevQuestion->correctAnswer.empty()) {
+        if (userText == prevQuestion->correctAnswer) {
+            messenger->sendMessage(userId, "Верно! " + prevQuestion->explanation);
+        } else {
+            messenger->sendMessage(userId, "Неверно. " + prevQuestion->explanation);
+        }
+    } else if (!prevQuestion->explanation.empty()) {
+        messenger->sendMessage(userId, prevQuestion->explanation);
+    }
 }

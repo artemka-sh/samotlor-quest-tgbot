@@ -85,16 +85,23 @@ bool DatabaseManager::hasUser(qint64 telegramId) {
     return exists;
 }
 
-void DatabaseManager::saveAnswer(qint64 telegramId, int questionId, const std::string& answer, const std::string& type) {
+int DatabaseManager::getUserId(qint64 telegramId) {
     QSqlQuery userQuery;
     userQuery.prepare("SELECT id FROM users WHERE telegram_id = :id");
     userQuery.bindValue(":id", telegramId);
     if (!userQuery.exec() || !userQuery.next()) {
+        qDebug() << "[getUserId] User not found for telegram_id:" << telegramId;
+        return -1;
+    }
+    return userQuery.value(0).toInt();
+}
+
+void DatabaseManager::saveAnswer(qint64 telegramId, int questionId, const std::string& answer, const std::string& type) {
+    int userId = getUserId(telegramId);
+    if (userId == -1) {
         qDebug() << "[saveAnswer] User not found for telegram_id:" << telegramId;
         return;
     }
-    int userId = userQuery.value(0).toInt();
-
     QSqlQuery query;
     query.prepare(R"(
         INSERT INTO user_answers (user_id, question_id, type, answer)
@@ -112,15 +119,11 @@ void DatabaseManager::saveAnswer(qint64 telegramId, int questionId, const std::s
 }
 
 int DatabaseManager::getLastAnsweredQuestionId(qint64 telegramId) {
-    QSqlQuery userQuery;
-    userQuery.prepare("SELECT id FROM users WHERE telegram_id = :id");
-    userQuery.bindValue(":id", telegramId);
-    if (!userQuery.exec() || !userQuery.next()) {
+    int userId = getUserId(telegramId);
+    if (userId == -1) {
         qDebug() << "[getLastAnsweredQuestionId] User not found for telegram_id:" << telegramId;
         return -1;
     }
-    int userId = userQuery.value(0).toInt();
-
     QSqlQuery query;
     query.prepare(R"(
         SELECT question_id
@@ -132,7 +135,8 @@ int DatabaseManager::getLastAnsweredQuestionId(qint64 telegramId) {
     query.bindValue(":user_id", userId);
     if (!query.exec() || !query.next()) {
         qDebug() << "[getLastAnsweredQuestionId] No answers found for user_id:" << userId;
-        return -1;
+        qDebug() << "[getLastAnsweredQuestionId] Return default id";
+        return 1;
     }
     int qid = query.value(0).toInt();
     qDebug() << "[getLastAnsweredQuestionId] Last answered question_id:" << qid << "for user_id:" << userId;
