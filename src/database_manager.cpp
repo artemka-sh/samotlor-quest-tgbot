@@ -3,7 +3,7 @@
 
 DatabaseManager::DatabaseManager(const Config& config) {
     db = QSqlDatabase::addDatabase("QPSQL");
-    db.setHostName(QString::fromStdString(config.db_addres));
+    db.setHostName(QString::fromStdString(config.db_address));
     db.setPort(QString::fromStdString(config.db_port).toInt());
     db.setDatabaseName(QString::fromStdString(config.db_name)); 
     db.setUserName(QString::fromStdString(config.db_user));

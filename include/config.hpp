@@ -10,7 +10,7 @@ class Config
 public:    
     QJsonObject data;
     std::string telegram_token;
-    std::string db_addres;
+    std::string db_address;
     std::string db_port;
     std::string db_name;
     std::string db_user;
@@ -20,7 +20,7 @@ public:
     {
         readConfigFromFile(path);
         telegram_token = data["telegram_token"].toString().toStdString();
-        db_addres = data["db_address"].toString().toStdString();
+        db_address = data["db_address"].toString().toStdString();
         db_port = data["db_port"].toString().toStdString();
         db_name = data["db_name"].toString().toStdString();
         db_user = data["db_user"].toString().toStdString();

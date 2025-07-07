@@ -1,6 +1,8 @@
+
+
 {
     "telegram_token": "7370409297:AAFFPO3FSgL6Zr5bbzmsvNwd_UYJk2BUhNM",
-    "db_addres": "127.0.0.1",
+    "db_address": "212.237.219.92",
     "db_port": "5432",
     "db_name": "samotlor_quest",
     "db_user": "myuser",
