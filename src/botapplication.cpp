@@ -16,6 +16,7 @@ BotApplication::BotApplication() {
     bot->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
         this->onAnyMessage(message);
     });
+
 }
 
 BotApplication::~BotApplication() {
@@ -103,7 +104,21 @@ void BotApplication::onAnyMessage(TgBot::Message::Ptr message) {
         if (lastAnsweredId >= 0) {
             messenger->sendQuestionWithKeyboard(user.id, *questions->findById(lastAnsweredId));
         } else {
-            messenger->sendMessage(user.id, "Добро пожаловать в квиз! Сейчас начнётся опрос. Пожалуйста, отвечайте на вопросы по порядку.");
+            // ...existing code...
+            messenger->sendMessage(user.id,
+                "Друзья, у нас с вами уникальный шанс — создать самую честную картину нашей команды и представить ее на празднике в честь юбилея собственника!\n\n"
+                "Почему это важно?\n"
+                "🔹 Ваше мнение станет частью истории компании — мы соберем все ответы и покажем, какой реальный «климат» в команде 😉\n"
+                "🔹 Мы увидим реальные суперсилы нас, как команды\n"
+                "🔹 Собственник лично прокомментирует ключевые выводы\n\n"
+                "Как это работает?\n"
+                "1️⃣ Анонимно отвечаете на вопросы (15-20 минут)\n"
+                "2️⃣ Бот анализирует все ответы\n"
+                "3️⃣ Ждем развязки на празднике — мы превратим сухие цифры в мощный сторителлинг\n\n"
+                "💡 Это не просто опрос — это наш с вами коллективный портрет!\n\n"
+                "Давайте сделаем это честно, круто и с пользой для всех! И… у нас есть всего 2 дня!"
+            );
+            // ...existing code...
             const Question* firstQuestion = questions->findById(getFirstQuestionId());
             databaseManager->saveAnswer(user.id, firstQuestion->id, "", firstQuestion->type);
             messenger->sendQuestionWithKeyboard(user.id, *firstQuestion);

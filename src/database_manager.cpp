@@ -186,3 +186,23 @@ bool DatabaseManager::isQuestionAnswered(qint64 telegramId, int questionId) {
     QString answer = query.value(0).toString();
     return !answer.isEmpty();
 }
+
+
+QList<qint64> DatabaseManager::getLazyUsers(qint64 secondsAgo)
+{
+    QList<qint64> ids;
+    QSqlQuery query;
+    // Подставляем значение напрямую в строку запроса
+    query.prepare(QString(
+        "SELECT telegram_id FROM users WHERE created_at < NOW() - INTERVAL '%1 seconds'"
+    ).arg(secondsAgo));
+
+    if (!query.exec()) {
+        qDebug() << "[getLazyUsers] Query failed:" << query.lastError().text();
+        return ids;
+    }
+    while (query.next()) {
+        ids.append(query.value(0).toLongLong());
+    }
+    return ids;
+}

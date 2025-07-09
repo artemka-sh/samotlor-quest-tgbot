@@ -10,6 +10,7 @@ class Config
 public:    
     QJsonObject data;
     std::string telegram_token;
+    qint64 lazy_time = 50; // seconds
     std::string db_address;
     std::string db_port;
     std::string db_name;
@@ -20,6 +21,7 @@ public:
     {
         readConfigFromFile(path);
         telegram_token = data["telegram_token"].toString().toStdString();
+        lazy_time = data["lazy_time"].toInt();
         db_address = data["db_address"].toString().toStdString();
         db_port = data["db_port"].toString().toStdString();
         db_name = data["db_name"].toString().toStdString();

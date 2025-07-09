@@ -4,6 +4,7 @@
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlError>
 #include <QString>
+#include <QList>
 #include "config.hpp"
 
 class DatabaseManager {
@@ -19,7 +20,7 @@ public:
     void updateAnswer(qint64 telegramId, int questionId, const std::string& answer, const std::string& type);
     int getUserId(qint64 telegramId);
     bool isQuestionAnswered(qint64 telegramId, int questionId);
-
+    QList<qint64> getLazyUsers(qint64 time);
 private:
     QSqlDatabase db;
 };
