@@ -27,16 +27,30 @@ BotApplication::~BotApplication() {
 }
 
 void BotApplication::startBot() {
-    try {
-        std::cout << "Bot username: " << bot->getApi().getMe()->username << std::endl;
-        longPoll = new TgBot::TgLongPoll(*bot);
-        while (true) {
-            std::cout << "Long poll started" << std::endl;
-            longPoll->start();
+    for(;;)
+    {
+        try {
+            std::cout << "Bot username: " << bot->getApi().getMe()->username << std::endl;
+            longPoll = new TgBot::TgLongPoll(*bot);                                         //утечка памяти
+            while (true) {
+                std::cout << "Long poll started" << std::endl;
+                longPoll->start();
+            }
+        } catch (const TgBot::TgException& e) {
+            std::cerr << "[TgException] " << e.what() << std::endl;
+
+        } catch (const std::exception& e) {
+            std::cerr << "[std::exception] " << e.what() << std::endl;
+
+        } catch (...) {                           // <- «универсальный» ловец
+            std::cerr << "[unknown] "
+                      << "Неизвестное исключение" << std::endl;
         }
-    } catch (const TgBot::TgException &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+
+        std::cout << "Повторный старт через 3 секунды.\n";
+        std::this_thread::sleep_for(std::chrono::seconds(3));
     }
+    
 }
 
 
@@ -93,7 +107,7 @@ void BotApplication::onAnyMessage(TgBot::Message::Ptr message) {
     // 2. Получаем id последнего отвеченного вопроса
     int lastAnsweredId = getLastAnsweredQuestionId(user.id);
     if (lastAnsweredId == getLastQuestionId() && databaseManager->isQuestionAnswered(user.id, lastAnsweredId)) {
-        messenger->sendMessage(user.id, "Вы завершили квест! Спасибо за участие.");
+        messenger->sendMessage(user.id, questions->ending);
         return;
     }
     
@@ -105,19 +119,7 @@ void BotApplication::onAnyMessage(TgBot::Message::Ptr message) {
             messenger->sendQuestionWithKeyboard(user.id, *questions->findById(lastAnsweredId));
         } else {
             // ...existing code...
-            messenger->sendMessage(user.id,
-                "Друзья, у нас с вами уникальный шанс — создать самую честную картину нашей команды и представить ее на празднике в честь юбилея собственника!\n\n"
-                "Почему это важно?\n"
-                "🔹 Ваше мнение станет частью истории компании — мы соберем все ответы и покажем, какой реальный «климат» в команде 😉\n"
-                "🔹 Мы увидим реальные суперсилы нас, как команды\n"
-                "🔹 Собственник лично прокомментирует ключевые выводы\n\n"
-                "Как это работает?\n"
-                "1️⃣ Анонимно отвечаете на вопросы (15-20 минут)\n"
-                "2️⃣ Бот анализирует все ответы\n"
-                "3️⃣ Ждем развязки на празднике — мы превратим сухие цифры в мощный сторителлинг\n\n"
-                "💡 Это не просто опрос — это наш с вами коллективный портрет!\n\n"
-                "Давайте сделаем это честно, круто и с пользой для всех! И… у нас есть всего 2 дня!"
-            );
+            messenger->sendMessage(user.id, questions->greeting);
             // ...existing code...
             const Question* firstQuestion = questions->findById(getFirstQuestionId());
             databaseManager->saveAnswer(user.id, firstQuestion->id, "", firstQuestion->type);
@@ -146,7 +148,7 @@ void BotApplication::onAnyMessage(TgBot::Message::Ptr message) {
         nextQuestion = getNextQuestion(lastAnsweredId);
     }
     if (!nextQuestion) {
-        messenger->sendMessage(user.id, "Вы завершили квест! Спасибо за участие.");
+        messenger->sendMessage(user.id, questions->ending);
         return;
     }
     // 7. Сохраняем следующий вопрос без текста ответа
