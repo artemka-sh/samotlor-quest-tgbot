@@ -5,6 +5,8 @@
 #include "questions.hpp"
 #include "database_manager.hpp"
 #include "telegram_messenger.hpp"
+#include <memory>
+
 
 struct User{
     qint64 id;
@@ -30,10 +32,10 @@ private:
     int getLastAnsweredQuestionId(qint64 userId) const;
     bool isValidAnswer(const std::string& userText, const Question question);
 
-    TelegramMessenger* messenger;
-    Config* config;
-    Questions* questions;
-    DatabaseManager* databaseManager;
-    TgBot::Bot* bot;
-    TgBot::TgLongPoll* longPoll;
+    std::unique_ptr<Config>             config;
+    std::unique_ptr<Questions>          questions;
+    std::unique_ptr<TgBot::Bot>         bot;
+    std::unique_ptr<DatabaseManager>    databaseManager;
+    std::unique_ptr<TelegramMessenger>  messenger;
+    std::unique_ptr<TgBot::TgLongPoll>  longPoll;  
 };

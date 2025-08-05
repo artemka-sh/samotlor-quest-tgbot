@@ -4,34 +4,28 @@
 #include "telegram_messenger.hpp"
 #include <QDebug>
 
-BotApplication::BotApplication() {
-    config = new Config("res/config.json");
-    questions = new Questions("res/questions.json");
-    bot = new TgBot::Bot(config->telegram_token);
-    databaseManager = new DatabaseManager(*config);
-    messenger = new TelegramMessenger(bot);
-    
-    databaseManager->initTables();
-
+BotApplication::BotApplication():
+    config(std::make_unique<Config>("res/config.json")),
+    questions(std::make_unique<Questions>("res/questions.json")),
+    bot(std::make_unique<TgBot::Bot>(config->telegram_token)),
+    databaseManager(std::make_unique<DatabaseManager>(*config)),
+    messenger(std::make_unique<TelegramMessenger>(bot.get()))
+{
     bot->getEvents().onAnyMessage([this](TgBot::Message::Ptr message) {
-        this->onAnyMessage(message);
+        this->onAnyMessage(std::move(message));
     });
 
 }
 
-BotApplication::~BotApplication() {
-    delete bot;
-    delete questions;
-    delete config;
-    delete messenger;
-}
+BotApplication::~BotApplication() {}
+
 
 void BotApplication::startBot() {
     for(;;)
     {
         try {
             std::cout << "Bot username: " << bot->getApi().getMe()->username << std::endl;
-            longPoll = new TgBot::TgLongPoll(*bot);                                         //утечка памяти
+            longPoll = std::make_unique<TgBot::TgLongPoll>(*bot);                                      
             while (true) {
                 std::cout << "Long poll started" << std::endl;
                 longPoll->start();
@@ -42,9 +36,8 @@ void BotApplication::startBot() {
         } catch (const std::exception& e) {
             std::cerr << "[std::exception] " << e.what() << std::endl;
 
-        } catch (...) {                           // <- «универсальный» ловец
-            std::cerr << "[unknown] "
-                      << "Неизвестное исключение" << std::endl;
+        } catch (...) {                           
+            std::cerr << "[unknown] Неизвестное исключение" << std::endl;
         }
 
         std::cout << "Повторный старт через 3 секунды.\n";
@@ -98,8 +91,13 @@ bool BotApplication::isValidAnswer(const std::string& userText, const Question q
 }
 
 
-void BotApplication::onAnyMessage(TgBot::Message::Ptr message) {
-   
+void BotApplication::onAnyMessage(TgBot::Message::Ptr message) {             
+
+    if ((message->text).empty()) {              
+        messenger->sendMessage(message->chat->id, "Я понимаю только текст.");
+        return;
+    }
+
 
     // 1. Получение пользователя (создаём, если нет)
     User user = getUser(message);
