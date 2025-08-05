@@ -1,4 +1,4 @@
-# QuestBot
+# QuizQuest Bot
 
 > A Telegram quest/quiz bot built entirely in modern **C++17** with **Qt** & **TgBot**)
 
