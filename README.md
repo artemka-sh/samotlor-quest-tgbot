@@ -121,3 +121,7 @@ PRs and issues are welcome!
 ## 📜 License
 
 Distributed under the MIT License. See `LICENSE` for details.
+
+## How it's look like
+![exampleimage](https://raw.githubusercontent.com/artemka-sh/files/refs/heads/main/exampletgbotq.jpg)
+
